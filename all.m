@@ -440,46 +440,34 @@ end
 
 
 %% 3. Newton-Raphson method
-% Function to solve the equation using Newton-Raphson method
-% Test the function
-f = @(x) x ^ 3 - 6 * x ^ 2 + 11 * x - 6.1;
-df = @(x) 3 * x ^ 2 - 12 * x + 11;
-x0 = 0;
-tol = 1e-5;
-[x, n] = newton_raphson_method(f, df, x0, tol);
-fprintf('x = %f\n', x);
-fprintf('n = %d\n', n);
-
 % The Newton-Raphson method for root finding.
 % Input:
 %   f: A function handle for the function you want to find a root of.
-%   df: A function handle for the derivative of f.
 %   x0: The initial guess for the root.
 %   tol: The tolerance for the stopping criterion.
 % Output:
 %   x: The approximate root of the function f.
 %   n: The number of iterations needed to reach the desired tolerance.
 function [x, n, x_vals] = newton_raphson_method(f, df, x0, tol)
-    n = 0;
-    x = x0;
-    x_vals = x; % Initialize x_vals with the initial guess
+    syms x;
+    df = diff(f, x);
+    df = matlabFunction(df);
 
     % Print the table header
     fprintf('%5s %10s %10s %10s\n', 'k', 'xk', 'f(xk)', 'f(xk) < tol');
 
     while true
-        n = n + 1;
-        x1 = x - f(x) / df(x);
+          n = n + 1;
+        delta = @(x) x - f(x) / df(x);
 
         % Print the iteration results
-        fprintf('%5d %10.5f %10.5f %10d\n', n, x, f(x), abs(x1 - x) < tol);
+        %fprintf('%5d %10.5f %10.5f %10d\n', n, x, f(x), abs(x1 - x) < tol);
 
-        if abs(x1 - x) < tol
+        if abs(delta(x0) - x0) < tol
             break;
         end
 
-        x = x1;
-        x_vals = [x_vals, x]; % Store the estimate at each iteration
+        x0 = delta(x0);
     end
 
     % Plot the estimates at each iteration
